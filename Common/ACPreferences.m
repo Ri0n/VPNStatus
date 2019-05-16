@@ -12,62 +12,53 @@
 // Preferences keys
 //
 NSString * const kServicesPrefKey = @"Services";
-NSString * const kServiceIdentifierKey = @"Identifier";
-NSString * const kServiceAlwaysConnectedKey = @"AlwaysConnected";
+NSString * const kServiceIdKey = @"Id";
+NSString * const kServiceAutoConnectKey = @"AutoConnect";
 
-NSString * const kAlwaysConnectedRetryDelayPrefKey = @"AlwaysConnectedRetryDelay";
+NSString * const kAutoConnectIntervalKey = @"AutoConnectInterval";
 
 
 
 @implementation ACPreferences
 
 
-+ (ACPreferences *)sharedPreferences
-{
++ (ACPreferences *)sharedPreferences {
 	static ACPreferences *SsharedPreferences = nil;
-	if(SsharedPreferences == nil)
-	{
+	if(SsharedPreferences == nil) {
 		SsharedPreferences = [[ACPreferences alloc] init];
 	}
 	
 	return SsharedPreferences;
 }
 
--(NSArray<NSString *>*)alwaysConnectedServicesIdentifiers
-{
-	NSMutableArray<NSString *>* outAlwaysConnectedServicesIdentifiers = [[NSMutableArray alloc] init];
+-(NSArray<NSString *>*)autoConnectServicesIds {
+	NSMutableArray<NSString *>* result = [[NSMutableArray alloc] init];
 	
 	// Get the list of services that should always been connected
 	NSArray <NSDictionary *>*services = [[NSUserDefaults standardUserDefaults] arrayForKey:kServicesPrefKey];
-	for(NSDictionary *service in services)
-	{
-		NSString *serviceIdentifier = service[kServiceIdentifierKey];
-		BOOL isAlwaysConnected = [service[kServiceAlwaysConnectedKey] boolValue];
-		if(isAlwaysConnected && [serviceIdentifier length] > 0)
-		{
-			[outAlwaysConnectedServicesIdentifiers addObject:serviceIdentifier];
+	for (NSDictionary *service in services) {
+		NSString *serviceId = service[kServiceIdKey];
+		BOOL isAlwaysConnected = [service[kServiceAutoConnectKey] boolValue];
+		if(isAlwaysConnected && [serviceId length] > 0) {
+			[result addObject:serviceId];
 		}
 	}
 	
-	return outAlwaysConnectedServicesIdentifiers;
+	return result;
 }
 
--(void)setAlwaysConnected:(BOOL)inAlwaysConnected forServicesIdentifier:(NSString *)inServiceIdentifier
-{
+-(void) setAutoConnect:(BOOL)autoConnect forServiceId:(NSString *)targetServiceId {
 	BOOL serviceFound = NO;
 	NSMutableArray <NSDictionary *>*services = [[[NSUserDefaults standardUserDefaults] arrayForKey:kServicesPrefKey] mutableCopy];
-	if(services == nil)
-	{
+	if(services == nil) {
 		services = [[NSMutableArray alloc] init];
 	}
 	
-	for(NSDictionary *service in services)
-	{
-		NSString *serviceIdentifier = service[kServiceIdentifierKey];
-		if([serviceIdentifier isEqualToString:inServiceIdentifier])
-		{
+	for(NSDictionary *service in services) {
+		NSString *serviceId = service[kServiceIdKey];
+		if([serviceId isEqualToString:targetServiceId]) {
 			NSMutableDictionary *updatedServiceDictionary = [service mutableCopy];
-			updatedServiceDictionary[kServiceAlwaysConnectedKey] = [NSNumber numberWithBool:inAlwaysConnected];
+			updatedServiceDictionary[kServiceAutoConnectKey] = [NSNumber numberWithBool:autoConnect];
 			
 			[services removeObject:service];
 			[services addObject:updatedServiceDictionary];
@@ -77,24 +68,21 @@ NSString * const kAlwaysConnectedRetryDelayPrefKey = @"AlwaysConnectedRetryDelay
 		}
 	}
 	
-	if(!serviceFound)
-	{
+	if(!serviceFound) {
 		NSMutableDictionary *serviceDictionary = [[NSMutableDictionary alloc] init];
-		serviceDictionary[kServiceIdentifierKey] = inServiceIdentifier;
-		serviceDictionary[kServiceAlwaysConnectedKey] = [NSNumber numberWithBool:inAlwaysConnected];
+		serviceDictionary[kServiceIdKey] = targetServiceId;
+		serviceDictionary[kServiceAutoConnectKey] = [NSNumber numberWithBool:autoConnect];
 		[services addObject:serviceDictionary];
 	}
 	
 	[[NSUserDefaults standardUserDefaults] setObject:services forKey:kServicesPrefKey];
 }
 
--(NSInteger)alwaysConnectedRetryDelay
-{
-	NSInteger retryDelay = [[NSUserDefaults standardUserDefaults] integerForKey:kAlwaysConnectedRetryDelayPrefKey];
-	if(retryDelay <= 10)
-	{
-		// Default is 120s
-		retryDelay = 120;
+-(NSInteger)autoConnectInterval {
+	NSInteger retryDelay = [[NSUserDefaults standardUserDefaults] integerForKey:kAutoConnectIntervalKey];
+	if(retryDelay <= 1) {
+		// Default is 60s
+		retryDelay = 60;
 	}
 	
 	return retryDelay;

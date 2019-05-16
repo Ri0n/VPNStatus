@@ -14,217 +14,144 @@
 @interface ACConnectionManager ()
 
 // Timer to try to reconnect services set to always auto connect
-@property (strong) NSTimer *alwaysAutoConnectTimer;
-
-// Time when the pause for auto connect was started
-@property (assign) CFAbsoluteTime startPauseTime;
-
-// Duration of the pause
-@property (assign) NSInteger pauseDuration;
+@property (strong) NSTimer *autoConnectTimer;
 
 @end
 
 
 @implementation ACConnectionManager
 
-+ (ACConnectionManager *)sharedManager
-{
++ (ACConnectionManager *) sharedManager {
 	static ACConnectionManager *sSharedManager = nil;
-	if(sSharedManager == nil)
-	{
+	if(sSharedManager == nil) {
 		sSharedManager = [[ACConnectionManager alloc] init];
 	}
 	
 	return sSharedManager;
 }
 
-- (instancetype)init
-{
+- (instancetype)init {
     self = [super init];
-    if (self)
-    {
-        [self startAlwaysAutoConnectTimer];
+    if (self) {
+        [self startAutoConnectTimer];
     }
     return self;
 }
 
--(void)toggleConnectionForService:(ACNEService *)inService
-{
-	if(inService == nil)
+- (void) toggleConnectionForService:(ACNEService *) service {
+	if (service == nil)
 		return;
 	
-	SCNetworkConnectionStatus serviceState = [inService state];
+	SCNetworkConnectionStatus serviceState = [service state];
 	
-	switch(serviceState)
-	{
+	switch(serviceState) {
 		case kSCNetworkConnectionDisconnected:
-		{
-			// Connect
-			[inService connect];
-		}
-		break;
-		
+            [service connect];
+            break;
 		case kSCNetworkConnectionConnected:
-		{
-			// Disconnect
-			[inService disconnect];
-		}
-		break;
-		
+            [service disconnect];
+            break;
 		default:
-		break;
+            break;
 	}
 }
 
--(void)startConnectionForService:(NSString *)inServiceIdentifier
-{
-	if([inServiceIdentifier length] <= 0)
+- (void) startConnectionForService:(NSString *)serviceId {
+	if ([serviceId length] <= 0)
 		return;
 	
 	// Get all services and find the correct NEService
-	NSArray <ACNEService*>* neServices = [[ACNEServicesManager sharedNEServicesManager] neServices];
+	NSArray <ACNEService*>* services =
+        [[ACNEServicesManager sharedNEServicesManager] services];
 	
-	ACNEService *foundNEService = nil;
-	for(ACNEService *neService in neServices)
-	{
-		if([inServiceIdentifier isEqualToString:[neService.configuration.identifier UUIDString]])
-		{
-			foundNEService = neService;
+	ACNEService *foundService = nil;
+	for(ACNEService *service in services) {
+		if([serviceId isEqualToString:[service.configuration.identifier UUIDString]]) {
+			foundService = service;
 			break;
 		}
 	}
 	
 	// Connect to the service if it is currently disconnected
-	if(foundNEService != nil)
-	{
-		if([foundNEService state] == kSCNetworkConnectionDisconnected)
-		{
-			[foundNEService connect];
+	if(foundService != nil) {
+		if([foundService state] == kSCNetworkConnectionDisconnected) {
+			[foundService connect];
 		}
 	}
 }
 
--(void)startAlwaysAutoConnectTimer
-{
+- (void) startAutoConnectTimer {
 	// Recreate the timer
-	if(self.alwaysAutoConnectTimer != nil)
-	{
-		[self.alwaysAutoConnectTimer invalidate];
-		self.alwaysAutoConnectTimer = nil;
+	if(self.autoConnectTimer != nil) {
+		[self.autoConnectTimer invalidate];
+		self.autoConnectTimer = nil;
 	}
 	
-	self.alwaysAutoConnectTimer = [[NSTimer alloc] initWithFireDate:[NSDate date] interval:[[ACPreferences sharedPreferences] alwaysConnectedRetryDelay] repeats:YES block:^(NSTimer * timer)
-	{
+	self.autoConnectTimer = [[NSTimer alloc] initWithFireDate:[NSDate date] interval:[[ACPreferences sharedPreferences] autoConnectInterval] repeats:YES block:^(NSTimer * timer) {
 		// Each time the timer fires, execute this block
-		if(![self isAutoConnectPaused])
-		{
-			NSArray<NSString *>*alwaysConnectedServicesIdentifiers = [[ACPreferences sharedPreferences] alwaysConnectedServicesIdentifiers];
-			for(NSString *serviceIdentifier in alwaysConnectedServicesIdentifiers)
-			{
-				[self startConnectionForService:serviceIdentifier];
-			}
-		}
+        NSArray <NSString *> * serviceIds = [[ACPreferences sharedPreferences]
+                                             autoConnectServicesIds];
+        for(NSString *serviceId in serviceIds) {
+            [self startConnectionForService:serviceId];
+        }
 	}];
 	
 	// Add the timer to the RunLoop
-	[[NSRunLoop currentRunLoop] addTimer:self.alwaysAutoConnectTimer forMode:NSDefaultRunLoopMode];
+	[[NSRunLoop currentRunLoop] addTimer:self.autoConnectTimer forMode:NSDefaultRunLoopMode];
 }
 
--(void)setAlwaysAutoConnect:(BOOL)inAlwaysAutoConnect forACNEService:(ACNEService *)inNEService
-{
-	if(inNEService == nil)
-		return;
+- (void) setAutoConnect:(BOOL) autoConnect
+               forService:(ACNEService *) service {
+	if (service == nil) return;
 	
 	// Save the preferences
-	[[ACPreferences sharedPreferences] setAlwaysConnected:inAlwaysAutoConnect forServicesIdentifier:[inNEService.configuration.identifier UUIDString]];
+	[[ACPreferences sharedPreferences] setAutoConnect:autoConnect forServiceId:[service.configuration.identifier UUIDString]];
 	
 	// Start the Timer
-	[self startAlwaysAutoConnectTimer];
+	[self startAutoConnectTimer];
 }
 
--(void)pauseAutoConnect:(NSInteger)inDuration
-{
-	self.startPauseTime = CFAbsoluteTimeGetCurrent();
-	self.pauseDuration = inDuration;
-}
-
--(void)resumeAutoConnect
-{
-	self.startPauseTime = 0;
-	self.pauseDuration = 0;
-}
-
--(BOOL)isAutoConnectPaused
-{
-	if(self.pauseDuration == NSIntegerMax)
-	{
-		return YES;
-	}
-	else if(self.startPauseTime + self.pauseDuration > CFAbsoluteTimeGetCurrent())
-	{
-		return YES;
+- (BOOL) hasAutoConnect {
+	
+	NSArray<NSString *>*serviceIds = [[ACPreferences sharedPreferences]
+                                      autoConnectServicesIds];
+	if([serviceIds count] <= 0)
+		return NO;
+	
+	// Check each service
+	NSArray <ACNEService*>* services = [[ACNEServicesManager sharedNEServicesManager] services];
+	for(ACNEService *neService in services) {
+		if([serviceIds containsObject:[neService.configuration.identifier UUIDString]]) {
+            return YES;
+		}
 	}
 	
 	return NO;
 }
 
--(NSInteger)currentPauseDuration
-{
-	return self.pauseDuration;
-}
-
--(BOOL)isAtLeastOneServiceSetToAutoConnect
-{
-	BOOL outCanEnableAutoConnect = NO;
-	
-	NSArray<NSString *>*alwaysConnectedServicesIdentifiers = [[ACPreferences sharedPreferences] alwaysConnectedServicesIdentifiers];
-	if([alwaysConnectedServicesIdentifiers count] <= 0)
-		return outCanEnableAutoConnect;
-	
-	// Check each service
-	NSArray <ACNEService*>* neServices = [[ACNEServicesManager sharedNEServicesManager] neServices];
-	for(ACNEService *neService in neServices)
-	{
-		if([alwaysConnectedServicesIdentifiers containsObject:[neService.configuration.identifier UUIDString]])
-		{
-			outCanEnableAutoConnect = YES;
-			break;
-		}
-	}
-	
-	return outCanEnableAutoConnect;
-}
-
--(void)disconnectAllAutoConnectedServices
-{
-	NSArray<NSString *>*alwaysConnectedServicesIdentifiers = [[ACPreferences sharedPreferences] alwaysConnectedServicesIdentifiers];
-	if([alwaysConnectedServicesIdentifiers count] <= 0)
-		return;
+-(void) disconnectAllAutoConnectedServices {
+	NSArray<NSString *>*serviceIds = [[ACPreferences sharedPreferences] autoConnectServicesIds];
+	if ([serviceIds count] <= 0) return;
 	
 	// Disconnect each service marked as always auto connecting
-	NSArray <ACNEService*>* neServices = [[ACNEServicesManager sharedNEServicesManager] neServices];
-	for(ACNEService *neService in neServices)
-	{
-		if([alwaysConnectedServicesIdentifiers containsObject:[neService.configuration.identifier UUIDString]])
-		{
-			[neService disconnect];
+	NSArray <ACNEService*>* services = [[ACNEServicesManager sharedNEServicesManager] services];
+	for(ACNEService *service in services) {
+		if([serviceIds containsObject:[service.configuration.identifier UUIDString]]) {
+			[service disconnect];
 		}
 	}
 }
 
--(void)connectAllAutoConnectedServices
-{
-	NSArray<NSString *>*alwaysConnectedServicesIdentifiers = [[ACPreferences sharedPreferences] alwaysConnectedServicesIdentifiers];
-	if([alwaysConnectedServicesIdentifiers count] <= 0)
-		return;
+-(void)connectAllAutoConnectedServices {
+	NSArray<NSString *>*serviceIds = [[ACPreferences sharedPreferences] autoConnectServicesIds];
+	if ([serviceIds count] <= 0) return;
 	
 	// Connect each service marked as always auto connecting
-	NSArray <ACNEService*>* neServices = [[ACNEServicesManager sharedNEServicesManager] neServices];
-	for(ACNEService *neService in neServices)
-	{
-		if([alwaysConnectedServicesIdentifiers containsObject:[neService.configuration.identifier UUIDString]])
-		{
-			[neService connect];
+	NSArray <ACNEService*>* services = [[ACNEServicesManager sharedNEServicesManager] services];
+	for(ACNEService *service in services) {
+		if([serviceIds containsObject:[service.configuration.identifier UUIDString]]) {
+            if ([service state] == kSCNetworkConnectionDisconnected)
+                [service connect];
 		}
 	}
 }

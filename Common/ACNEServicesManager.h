@@ -16,7 +16,7 @@
 
 @interface ACNEServicesManager : NSObject
 
-@property (strong) NSMutableArray <ACNEService*>* neServices;
+@property (strong) NSMutableArray <ACNEService*>* services;
 @property (readonly, nonatomic) dispatch_queue_t neServiceQueue;
 
 /**

@@ -15,26 +15,26 @@
 /**
  Get the singleton object
  */
-+ (ACPreferences *)sharedPreferences;
++ (ACPreferences *) sharedPreferences;
 
 
 /**
  Return the list of VPN service identifiers that have been set to auto connect
  */
--(NSArray<NSString *>*)alwaysConnectedServicesIdentifiers;
+-(NSArray<NSString *>*) autoConnectServicesIds;
 
 
 /**
  Enable or disable auto connect for the VPN service
  */
--(void)setAlwaysConnected:(BOOL)inAlwaysConnected forServicesIdentifier:(NSString *)inServiceIdentifier;
+-(void) setAutoConnect:(BOOL)autoConnect forServiceId:(NSString *)inServiceId;
 
 
 /**
  How often should we retry to connect to the VPN?
- Default is 120s
+ Default is 60s
  */
--(NSInteger)alwaysConnectedRetryDelay;
+-(NSInteger)autoConnectInterval;
 
 
 @end

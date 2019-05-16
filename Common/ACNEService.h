@@ -24,20 +24,20 @@
 @property (assign) ne_session_status_t sessionStatus;
 
 // init
-- (instancetype)initWithConfiguration:(NEConfiguration *)inConfiguration;
+- (instancetype) initWithConfig:(NEConfiguration *)inConfiguration;
 
 // Access information
--(NSString *)name;
--(NSString *)serverAddress;
--(NSString *)protocol;
+-(NSString *) name;
+-(NSString *) serverAddress;
+-(NSString *) protocol;
 
 // Refresh and get the state of the session
--(void)refreshSession;
--(SCNetworkConnectionStatus)state;
+-(void) refreshSession;
+-(SCNetworkConnectionStatus) state;
 
 // Connect and disconnect
--(void)connect;
--(void)disconnect;
+-(void) connect;
+-(void) disconnect;
 
 @end
 

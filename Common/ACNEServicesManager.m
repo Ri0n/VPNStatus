@@ -13,73 +13,61 @@
 
 @implementation ACNEServicesManager
 
-+ (ACNEServicesManager *)sharedNEServicesManager
-{
++ (ACNEServicesManager *)sharedNEServicesManager {
 	static ACNEServicesManager *sSharedNEServicesManager = nil;
-	if(sSharedNEServicesManager == nil)
-	{
+	if (sSharedNEServicesManager == nil) {
 		sSharedNEServicesManager = [[ACNEServicesManager alloc] init];
 	}
 	
 	return sSharedNEServicesManager;
 }
 
-- (instancetype)init
-{
+- (instancetype) init {
     self = [super init];
-    if (self)
-    {
+    if (self) {
     	// Create the dispatch queue
         _neServiceQueue = dispatch_queue_create("Network Extension service Queue", NULL);
 		
         // Allocate the NEServices array
-        _neServices = [[NSMutableArray alloc] init];
+        _services = [[NSMutableArray alloc] init];
     }
     return self;
 }
 
--(void) loadConfigurationsWithHandler:(void (^)(NSError * error))handler
-{
+-(void) loadConfigurationsWithHandler:(void (^)(NSError * error))handler {
 	// Load the NEConfigurations
-    [[NEConfigurationManager sharedManager] loadConfigurationsWithCompletionQueue:[self neServiceQueue] handler:^(NSArray<NEConfiguration *> * neConfigurations, NSError * error)
-    {
-		if(error != nil)
-		{
+    [[NEConfigurationManager sharedManager] loadConfigurationsWithCompletionQueue:[self neServiceQueue] handler:^(NSArray<NEConfiguration *> * configs, NSError * error) {
+		if(error != nil) {
 			NSLog(@"ERROR loading configurations - %@", error);
 			return;
 		}
 		
-		dispatch_async(dispatch_get_main_queue(), ^
-		{
+		dispatch_async(dispatch_get_main_queue(), ^{
 			// Process the configurations
-			[self processConfigurations:neConfigurations];
+			[self processConfigs:configs];
 			
 			handler(error);
 		});
 	}];
 }
 
-- (void)processConfigurations:(NSArray <NEConfiguration*>*)inConfigurations
-{
+- (void)processConfigs:(NSArray <NEConfiguration*>*)configs{
 	// Fill the array
-	[self.neServices removeAllObjects];
+	[self.services removeAllObjects];
 	
-	for(NEConfiguration *neConfiguration in inConfigurations)
-	{
-		ACNEService *service = [[ACNEService alloc] initWithConfiguration:neConfiguration];
-		[self.neServices addObject:service];
+	for(NEConfiguration *config in configs) {
+		ACNEService *service = [[ACNEService alloc] initWithConfig:config];
+		[self.services addObject:service];
 	}
 	
 	// Sort by name
-	[self.neServices sortUsingComparator:^NSComparisonResult(ACNEService *obj1, ACNEService *obj2)
-	{
+	[self.services sortUsingComparator:^NSComparisonResult(ACNEService *obj1, ACNEService *obj2) {
 		return [obj1.name compare:obj2.name];
 	}];
 	
 	// Refresh the states
-	for(ACNEService *neService in self.neServices)
-	{
-		[neService refreshSession]; 
+	for(ACNEService *service in self.services) {
+		[service refreshSession];
 	}
 }
 
