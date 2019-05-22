@@ -12,7 +12,6 @@
 #import "ACNEService.h"
 #import "ACNEServicesManager.h"
 #import "ACPreferences.h"
-#import "ACConnectionManager.h"
 
 @interface AppDelegate ()
 
@@ -37,8 +36,6 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-	// Create the ACConnectionManager singleton
-	[ACConnectionManager sharedManager];
 	
 	// Create the NSStatusItem
 	self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSSquareStatusItemLength];
@@ -50,7 +47,7 @@
 	// Register for notifications to refresh the UI
 	[[NSNotificationCenter defaultCenter]
      addObserver:self
-     selector:@selector(refresh)
+     selector:@selector(refreshMenu)
      name:kSessionStateChangedNotification
      object:nil];
 
@@ -60,7 +57,7 @@
 		if(error != nil) {
 			NSLog(@"Failed to load the configurations - %@", error);
 		}
-		[self refresh];
+		[self refreshMenu];
 	}];
 }
 
@@ -92,18 +89,13 @@
 	}
 }
 
--(void) refresh{
-    [[ACConnectionManager sharedManager] connectAllAutoConnectedServices];
-    [self refreshMenu];
-}
-
 -(void) refreshMenu {
 	NSMenu *menu = [[NSMenu alloc] init];
 	
-	NSArray <ACNEService*>* neServices =
+	NSArray <ACNEService*>* services =
         [[ACNEServicesManager sharedNEServicesManager] services];
 	
-	if([neServices count] == 0) {
+	if([services count] == 0) {
 		// Handle the case where there is no VPN service set up
 		[menu addItem:[[NSMenuItem alloc]
                        initWithTitle:@"No VPN available"
@@ -112,14 +104,14 @@
 		[menu addItem:[NSMenuItem separatorItem]];
 	} else {
 		NSUInteger connectServiceIndex = 0;
-		for(ACNEService *neService in neServices) {
+		for(ACNEService *service in services) {
 			// Update the controls based on the state
 			NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""];
 			
             NSString * format;
             
 			// Update the state
-			switch([neService state]) {
+			switch([service state]) {
 				case kSCNetworkConnectionDisconnected:
 					[menuItem setAction:@selector(connectService:)];
                     format = @"Connect %@";
@@ -144,7 +136,7 @@
                     break;
 			}
             
-            [menuItem setTitle:[NSString stringWithFormat: format, neService.name]];
+            [menuItem setTitle:[NSString stringWithFormat: format, service.name]];
 			[menuItem setTag:connectServiceIndex];
 			[menu addItem:menuItem];
 			connectServiceIndex++;
@@ -152,21 +144,19 @@
 		
 		[menu addItem:[NSMenuItem separatorItem]];
 		
-		NSUInteger neServiceIndex = 0;
-		for (ACNEService *neService in neServices) {
-			if (neServiceIndex > 0) {
-				[menu addItem:[NSMenuItem separatorItem]];
-			}
+		NSUInteger serviceIndex = 0;
+		for (ACNEService *service in services) {
+			if (serviceIndex > 0) [menu addItem:[NSMenuItem separatorItem]];
 			
-			[menu addItem:[[NSMenuItem alloc] initWithTitle:neService.name
+			[menu addItem:[[NSMenuItem alloc] initWithTitle:service.name
                                                      action:nil
                                               keyEquivalent:@""]];
 			
 			// Update the information
 			[menu addItem:[[NSMenuItem alloc]
                            initWithTitle:[NSString stringWithFormat:@"%@ (%@)",
-                                          [neService serverAddress],
-                                          [neService protocol]]
+                                          [service serverAddress],
+                                          [service protocol]]
                            action:nil
                            keyEquivalent:@""]];
 			
@@ -175,25 +165,18 @@
                  initWithTitle:@"Auto connect"
                  action:@selector(changeAutoConnect:)
                  keyEquivalent:@""];
-			[autoConnectMenuItem setTag:neServiceIndex];
-			NSArray <NSString *> * alwaysConnectedServices =
-                [[ACPreferences sharedPreferences]
-                 autoConnectServicesIds];
-			if ([alwaysConnectedServices containsObject:[neService.configuration.identifier UUIDString]]) {
-				[autoConnectMenuItem setState: NSOnState];
-			} else {
-				[autoConnectMenuItem setState: NSOffState];
-			}
+			[autoConnectMenuItem setTag:serviceIndex];
+            [autoConnectMenuItem setState:[service getAutoConnect] ? NSOnState : NSOffState];
 			
 			[menu addItem:autoConnectMenuItem];
-			neServiceIndex++;
+			serviceIndex++;
 		}
 		
 		[menu addItem:[NSMenuItem separatorItem]];
 	}
 	
 	// Other menu items
-	[menu addItem:[[NSMenuItem alloc] initWithTitle:@"About VPNStatus" action:@selector(showAbout:) keyEquivalent:@""]];
+	[menu addItem:[[NSMenuItem alloc] initWithTitle:@"About VPNStatus" action:@selector(showAbout:) keyEquivalent:@"i"]];
 	[menu addItem:[NSMenuItem separatorItem]];
 	[menu addItem:[[NSMenuItem alloc] initWithTitle:@"Quit VPNStatus" action:@selector(quit:) keyEquivalent:@"q"]];
 	
@@ -210,7 +193,7 @@
     ACNEService *service = [self findService:sender];
     
     if (service != nil) {
-        [self setAutoConnect:service to:NO];
+        [service setAutoConnect:NO];
         [service disconnect];
     }
 }
@@ -225,22 +208,9 @@
 
 -(IBAction) changeAutoConnect:(id)sender {
     ACNEService *service = [self findService:sender];
-    
-    if (service != nil){
-        NSArray<NSString *>* alwaysConnectedServices = [[ACPreferences sharedPreferences] autoConnectServicesIds];
-        BOOL autoConnect = [alwaysConnectedServices containsObject:[service.configuration.identifier UUIDString]];
-        
-        [self setAutoConnect:service to:!autoConnect];
-    }
-	
-	[self refresh];
-}
-
--(void) setAutoConnect: (ACNEService *)service
-                    to: (BOOL)autoConnect {
-    [[ACConnectionManager sharedManager] setAutoConnect:autoConnect
-                                             forService:service];
-    [self refresh];
+    if (service != nil)[service setAutoConnect:![service getAutoConnect]];
+    if ([service shouldAutoConnect]) [service connect];
+	[self refreshMenu];
 }
 
 @end

@@ -8,6 +8,7 @@
 
 #import "ACNEService.h"
 #import "ACNEServicesManager.h"
+#import "ACPreferences.h"
 
 @implementation ACNEService
 
@@ -16,6 +17,8 @@
     if (self) {
         _configuration = config;
 		_gotInitialSessionStatus = NO;
+        _connectTried = 0;
+        _lastConnectTime = nil;
 		
         // Get the configuration identifier to initialize the ne_session_t
         NSUUID *uuid = [config identifier];
@@ -28,6 +31,7 @@
 		// Setup the callbacks
         [self setupEventCallback];
         [self refreshSession];
+        if ([self shouldAutoConnect]) [self connect];
     }
     
     return self;
@@ -47,6 +51,18 @@
 
 -(NSString *)serverAddress {
 	return _configuration.VPN.protocol.serverAddress;
+}
+
+-(NSString *)uid {
+    return [_configuration.identifier UUIDString];
+}
+
+-(BOOL)getAutoConnect {
+    return [[ACPreferences sharedPreferences] getAutoConnect:[self uid]];
+}
+
+-(void)setAutoConnect:(BOOL) autoConnect {
+    [[ACPreferences sharedPreferences] setAutoConnect:autoConnect forId:[self uid]];
 }
 
 -(NSString *)protocol {
@@ -84,6 +100,7 @@
 		dispatch_async(dispatch_get_main_queue(), ^{
 			self.sessionStatus = status;
 			self.gotInitialSessionStatus = YES;
+            if ([self shouldAutoConnect]) [self connect];
             
 			// Post a notification to refresh the UI
 			[[NSNotificationCenter defaultCenter] postNotificationName:kSessionStateChangedNotification object:nil];
@@ -91,7 +108,23 @@
 	});
 }
 
+-(BOOL) shouldAutoConnect{
+    return [self state] == kSCNetworkConnectionDisconnected && [self getAutoConnect];
+}
+
 -(void) connect {
+    NSDate *now = [NSDate date];
+    if (_lastConnectTime == nil ||
+        [now compare: [_lastConnectTime dateByAddingTimeInterval:1]]
+        == NSOrderedDescending) _connectTried = 0;
+    _connectTried++;
+    _lastConnectTime = now;
+    if (_connectTried > 3 && [self getAutoConnect]){
+        //connection failed consecutively
+        [self setAutoConnect:NO];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kSessionStateChangedNotification object:nil];
+        return;
+    }
 	ne_session_start(_session);
 }
 

@@ -17,24 +17,12 @@
  */
 + (ACPreferences *) sharedPreferences;
 
-
-/**
- Return the list of VPN service identifiers that have been set to auto connect
- */
--(NSArray<NSString *>*) autoConnectServicesIds;
-
-
 /**
  Enable or disable auto connect for the VPN service
  */
--(void) setAutoConnect:(BOOL)autoConnect forServiceId:(NSString *)inServiceId;
+-(void) setAutoConnect:(BOOL)autoConnect forId:(NSString *)serviceId;
 
-
-/**
- How often should we retry to connect to the VPN?
- Default is 60s
- */
--(NSInteger)autoConnectInterval;
+-(BOOL) getAutoConnect:(NSString *)serviceId;
 
 
 @end

@@ -18,25 +18,22 @@
 	if (sSharedNEServicesManager == nil) {
 		sSharedNEServicesManager = [[ACNEServicesManager alloc] init];
 	}
-	
 	return sSharedNEServicesManager;
 }
 
 - (instancetype) init {
     self = [super init];
     if (self) {
-    	// Create the dispatch queue
         _neServiceQueue = dispatch_queue_create("Network Extension service Queue", NULL);
-		
-        // Allocate the NEServices array
         _services = [[NSMutableArray alloc] init];
     }
     return self;
 }
 
 -(void) loadConfigurationsWithHandler:(void (^)(NSError * error))handler {
-	// Load the NEConfigurations
-    [[NEConfigurationManager sharedManager] loadConfigurationsWithCompletionQueue:[self neServiceQueue] handler:^(NSArray<NEConfiguration *> * configs, NSError * error) {
+    [[NEConfigurationManager sharedManager]
+     loadConfigurationsWithCompletionQueue:[self neServiceQueue]
+     handler:^(NSArray<NEConfiguration *> * configs, NSError * error) {
 		if(error != nil) {
 			NSLog(@"ERROR loading configurations - %@", error);
 			return;

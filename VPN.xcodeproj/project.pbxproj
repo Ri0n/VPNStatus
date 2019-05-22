@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0231297C20F9F8CF003F7540 /* ACConnectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 0231297A20F9F8CE003F7540 /* ACConnectionManager.m */; };
 		02619DE820F7DF2200099652 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 02619DE720F7DF2200099652 /* AppDelegate.m */; };
 		02619DEA20F7DF2400099652 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 02619DE920F7DF2400099652 /* Assets.xcassets */; };
 		02619DED20F7DF2400099652 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 02619DEB20F7DF2400099652 /* MainMenu.xib */; };
@@ -37,8 +36,6 @@
 
 /* Begin PBXFileReference section */
 		0204472520F001A400B31904 /* vpnutil */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = vpnutil; sourceTree = BUILT_PRODUCTS_DIR; };
-		0231297920F9F8CE003F7540 /* ACConnectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ACConnectionManager.h; sourceTree = "<group>"; };
-		0231297A20F9F8CE003F7540 /* ACConnectionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACConnectionManager.m; sourceTree = "<group>"; };
 		02619DE420F7DF2200099652 /* VPNStatus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VPNStatus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		02619DE620F7DF2200099652 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		02619DE720F7DF2200099652 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -114,8 +111,6 @@
 				02799F7E20F0081F00675162 /* ACNEServicesManager.m */,
 				02619DFC20F7F7BE00099652 /* ACPreferences.h */,
 				02619DFD20F7F7BE00099652 /* ACPreferences.m */,
-				0231297920F9F8CE003F7540 /* ACConnectionManager.h */,
-				0231297A20F9F8CE003F7540 /* ACConnectionManager.m */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -261,7 +256,6 @@
 				02619DF720F7E23800099652 /* ACNEServicesManager.m in Sources */,
 				02619DF620F7E23600099652 /* ACNEService.m in Sources */,
 				02619DFF20F7F7BF00099652 /* ACPreferences.m in Sources */,
-				0231297C20F9F8CF003F7540 /* ACConnectionManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

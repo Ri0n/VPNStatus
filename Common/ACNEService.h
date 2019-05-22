@@ -20,8 +20,9 @@
 
 // Use to ensure we got the session status
 @property (assign) BOOL gotInitialSessionStatus;
-
 @property (assign) ne_session_status_t sessionStatus;
+@property (retain) NSDate *lastConnectTime;
+@property (assign) int connectTried;
 
 // init
 - (instancetype) initWithConfig:(NEConfiguration *)inConfiguration;
@@ -30,6 +31,11 @@
 -(NSString *) name;
 -(NSString *) serverAddress;
 -(NSString *) protocol;
+-(NSString *) uid;
+
+-(BOOL) getAutoConnect;
+-(BOOL) shouldAutoConnect;
+-(void) setAutoConnect:(BOOL) autoConnect;
 
 // Refresh and get the state of the session
 -(void) refreshSession;
