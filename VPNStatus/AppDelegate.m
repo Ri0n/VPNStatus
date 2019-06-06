@@ -186,14 +186,17 @@
 
 - (IBAction)connectService:(id)sender {
     ACNEService *service = [self findService:sender];
-    if (service != nil) [service connect];
+    if (service != nil) {
+        service.start = YES;
+        [service connect];
+    }
 }
 
 -(IBAction) disconnectService:(id)sender {
     ACNEService *service = [self findService:sender];
     
     if (service != nil) {
-        [service setAutoConnect:NO];
+        service.start = NO;
         [service disconnect];
     }
 }
@@ -209,7 +212,6 @@
 -(IBAction) changeAutoConnect:(id)sender {
     ACNEService *service = [self findService:sender];
     if (service != nil)[service setAutoConnect:![service getAutoConnect]];
-    if ([service shouldAutoConnect]) [service connect];
 	[self refreshMenu];
 }
 

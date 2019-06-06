@@ -17,6 +17,7 @@
     if (self) {
         _configuration = config;
 		_gotInitialSessionStatus = NO;
+        _start = NO;
         _connectTried = 0;
         _lastConnectTime = nil;
 		
@@ -109,7 +110,9 @@
 }
 
 -(BOOL) shouldAutoConnect{
-    return [self state] == kSCNetworkConnectionDisconnected && [self getAutoConnect];
+    return [self state] == kSCNetworkConnectionDisconnected
+    && [self getAutoConnect]
+    && _start;
 }
 
 -(void) connect {

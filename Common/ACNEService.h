@@ -20,6 +20,7 @@
 
 // Use to ensure we got the session status
 @property (assign) BOOL gotInitialSessionStatus;
+@property (assign) BOOL start;
 @property (assign) ne_session_status_t sessionStatus;
 @property (retain) NSDate *lastConnectTime;
 @property (assign) int connectTried;
