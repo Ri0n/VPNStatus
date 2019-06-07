@@ -124,7 +124,7 @@
     _lastConnectTime = now;
     if (_connectTried > 3 && [self getAutoConnect]){
         //connection failed consecutively
-        [self setAutoConnect:NO];
+        _start = NO;
         [[NSNotificationCenter defaultCenter] postNotificationName:kSessionStateChangedNotification object:nil];
         return;
     }
