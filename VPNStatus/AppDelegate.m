@@ -123,7 +123,8 @@
                     break;
 				
 				case kSCNetworkConnectionConnecting:
-                    format = @"Connecting %@...";
+                    [menuItem setAction:@selector(disconnectService:)];
+                    format = @"Stop Connecting %@...";
                     break;
 				
 				case kSCNetworkConnectionDisconnecting:
