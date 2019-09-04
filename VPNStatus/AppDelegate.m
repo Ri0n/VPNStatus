@@ -169,19 +169,19 @@
                  keyEquivalent:@""];
 			[autoConnectVPNMenuItem setTag:serviceIndex];
             [autoConnectVPNMenuItem setState:[service getVPNAutoConnect] ? NSOnState : NSOffState];
-			
 			[menu addItem:autoConnectVPNMenuItem];
             
-            NSMenuItem *autoConnectWifiMenuItem =
-            [[NSMenuItem alloc]
-             initWithTitle:@"Auto connect on this wifi"
-             action:@selector(changeWifiAutoConnect:)
-             keyEquivalent:@""];
-            [autoConnectWifiMenuItem setTag:serviceIndex];
-            [autoConnectWifiMenuItem setState:[service getWifiAutoConnect] ? NSOnState : NSOffState];
-            
-            [menu addItem:autoConnectWifiMenuItem];
-            
+            if ([[ACCWManager sharedACCWManager] networkConnected]){
+                NSMenuItem *autoConnectWifiMenuItem =
+                [[NSMenuItem alloc]
+                 initWithTitle:@"Auto connect on this wifi"
+                 action:@selector(changeWifiAutoConnect:)
+                 keyEquivalent:@""];
+                [autoConnectWifiMenuItem setTag:serviceIndex];
+                [autoConnectWifiMenuItem setState:[service getWifiAutoConnect] ? NSOnState : NSOffState];
+                [menu addItem:autoConnectWifiMenuItem];
+            }
+                
 			serviceIndex++;
 		}
 		
