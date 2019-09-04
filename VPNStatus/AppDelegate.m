@@ -11,7 +11,7 @@
 #import "ACDefines.h"
 #import "ACNEService.h"
 #import "ACNEServicesManager.h"
-#import "ACPreferences.h"
+#import "ACCWManager.h"
 
 @interface AppDelegate ()
 
@@ -40,6 +40,7 @@
 	// Create the NSStatusItem
 	self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSSquareStatusItemLength];
 	[self updateStatusItemIcon];
+    [ACCWManager sharedACCWManager];
 	
 	// Refresh the menu
 	[self refreshMenu];
@@ -161,15 +162,26 @@
                            action:nil
                            keyEquivalent:@""]];
 			
-			NSMenuItem *autoConnectMenuItem =
+			NSMenuItem *autoConnectVPNMenuItem =
                 [[NSMenuItem alloc]
-                 initWithTitle:@"Auto connect"
-                 action:@selector(changeAutoConnect:)
+                 initWithTitle:@"Auto reconnect"
+                 action:@selector(changeVPNAutoConnect:)
                  keyEquivalent:@""];
-			[autoConnectMenuItem setTag:serviceIndex];
-            [autoConnectMenuItem setState:[service getAutoConnect] ? NSOnState : NSOffState];
+			[autoConnectVPNMenuItem setTag:serviceIndex];
+            [autoConnectVPNMenuItem setState:[service getVPNAutoConnect] ? NSOnState : NSOffState];
 			
-			[menu addItem:autoConnectMenuItem];
+			[menu addItem:autoConnectVPNMenuItem];
+            
+            NSMenuItem *autoConnectWifiMenuItem =
+            [[NSMenuItem alloc]
+             initWithTitle:@"Auto connect on this wifi"
+             action:@selector(changeWifiAutoConnect:)
+             keyEquivalent:@""];
+            [autoConnectWifiMenuItem setTag:serviceIndex];
+            [autoConnectWifiMenuItem setState:[service getWifiAutoConnect] ? NSOnState : NSOffState];
+            
+            [menu addItem:autoConnectWifiMenuItem];
+            
 			serviceIndex++;
 		}
 		
@@ -187,19 +199,12 @@
 
 - (IBAction)connectService:(id)sender {
     ACNEService *service = [self findService:sender];
-    if (service != nil) {
-        service.start = YES;
-        [service connect];
-    }
+    if (service != nil) [service connect];
 }
 
 -(IBAction) disconnectService:(id)sender {
     ACNEService *service = [self findService:sender];
-    
-    if (service != nil) {
-        service.start = NO;
-        [service disconnect];
-    }
+    if (service != nil) [service disconnect];
 }
 
 -(IBAction) showAbout:(id)sender {
@@ -210,10 +215,16 @@
 	[NSApp terminate:self];
 }
 
--(IBAction) changeAutoConnect:(id)sender {
+-(IBAction) changeVPNAutoConnect:(id)sender {
     ACNEService *service = [self findService:sender];
-    if (service != nil)[service setAutoConnect:![service getAutoConnect]];
+    if (service != nil)[service setVPNAutoConnect:![service getVPNAutoConnect]];
 	[self refreshMenu];
+}
+
+-(IBAction) changeWifiAutoConnect:(id)sender {
+    ACNEService *service = [self findService:sender];
+    if (service != nil)[service setWifiAutoConnect:![service getWifiAutoConnect]];
+    [self refreshMenu];
 }
 
 @end

@@ -9,6 +9,8 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "ACDefines.h"
+#import "ACNEService.h"
 
 @class ACNEService;
 @class NEConfiguration;
@@ -17,7 +19,7 @@
 @interface ACNEServicesManager : NSObject
 
 @property (strong) NSMutableArray <ACNEService*>* services;
-@property (readonly, nonatomic) dispatch_queue_t neServiceQueue;
+@property (readonly) dispatch_queue_t neServiceQueue;
 
 /**
  Get the singleton object
@@ -29,5 +31,6 @@
  Load the NEConfigurations from NetworkExtension.framework
  */
 -(void) loadConfigurationsWithHandler:(void (^)(NSError * _Nullable error))handler;
+-(void) tryConnectAll;
 
 @end

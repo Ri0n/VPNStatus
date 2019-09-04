@@ -15,15 +15,14 @@
 /**
  Get the singleton object
  */
-+ (ACPreferences *) sharedPreferences;
-
++(ACPreferences *) sharedPreferences;
 /**
  Enable or disable auto connect for the VPN service
  */
--(void) setAutoConnect:(BOOL)autoConnect forId:(NSString *)serviceId;
-
--(BOOL) getAutoConnect:(NSString *)serviceId;
-
+-(void) setVPNAutoConnect:(BOOL)autoConnect forVPN:(NSString *)VPNId;
+-(BOOL) getVPNAutoConnect:(NSString *)VPNId;
+-(void) setWifiAutoConnect:(BOOL)autoConnect forVPN:(NSString *)VPNId forWifi:(NSString *)wifiId;
+-(BOOL) getWifiAutoConnect:(NSString *)VPNId forWifi:(NSString *)wifiId;
 
 @end
 

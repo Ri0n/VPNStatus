@@ -8,9 +8,6 @@
 
 #import "ACNEServicesManager.h"
 
-#import "ACDefines.h"
-#import "ACNEService.h"
-
 @implementation ACNEServicesManager
 
 + (ACNEServicesManager *)sharedNEServicesManager {
@@ -66,6 +63,15 @@
 	for(ACNEService *service in self.services) {
 		[service refreshSession];
 	}
+}
+
+- (void)tryConnectAll{
+    for (ACNEService *service in self.services){
+        if ([service shouldAutoStartConnect]){
+            service.start = YES;
+            [service connect];
+        }
+    }
 }
 
 @end

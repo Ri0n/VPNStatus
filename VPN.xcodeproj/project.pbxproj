@@ -20,6 +20,7 @@
 		02799F7620F0080E00675162 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 02799F7520F0080E00675162 /* main.m */; };
 		02799F8020F0081F00675162 /* ACNEService.m in Sources */ = {isa = PBXBuildFile; fileRef = 02799F7C20F0081F00675162 /* ACNEService.m */; };
 		02799F8220F0081F00675162 /* ACNEServicesManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 02799F7E20F0081F00675162 /* ACNEServicesManager.m */; };
+		DA994F4322F331C2006D688F /* ACCWManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DA994F4122F32FEC006D688F /* ACCWManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -52,6 +53,8 @@
 		02799F7C20F0081F00675162 /* ACNEService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACNEService.m; sourceTree = "<group>"; };
 		02799F7D20F0081F00675162 /* ACNEServicesManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ACNEServicesManager.h; sourceTree = "<group>"; };
 		02799F7E20F0081F00675162 /* ACNEServicesManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACNEServicesManager.m; sourceTree = "<group>"; };
+		DA994F4022F32FD2006D688F /* ACCWManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ACCWManager.h; sourceTree = "<group>"; };
+		DA994F4122F32FEC006D688F /* ACCWManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ACCWManager.m; sourceTree = "<group>"; };
 		FA53907E20EF5FD600BA9AF7 /* NetworkMenusCommon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkMenusCommon.framework; path = ../../../../System/Library/PrivateFrameworks/NetworkMenusCommon.framework; sourceTree = "<group>"; };
 		FA53908120EF603700BA9AF7 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		FA53908320EF603B00BA9AF7 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
@@ -109,6 +112,8 @@
 				02799F7C20F0081F00675162 /* ACNEService.m */,
 				02799F7D20F0081F00675162 /* ACNEServicesManager.h */,
 				02799F7E20F0081F00675162 /* ACNEServicesManager.m */,
+				DA994F4022F32FD2006D688F /* ACCWManager.h */,
+				DA994F4122F32FEC006D688F /* ACCWManager.m */,
 				02619DFC20F7F7BE00099652 /* ACPreferences.h */,
 				02619DFD20F7F7BE00099652 /* ACPreferences.m */,
 			);
@@ -251,6 +256,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DA994F4322F331C2006D688F /* ACCWManager.m in Sources */,
 				02619DF020F7DF2400099652 /* main.m in Sources */,
 				02619DE820F7DF2200099652 /* AppDelegate.m in Sources */,
 				02619DF720F7E23800099652 /* ACNEServicesManager.m in Sources */,

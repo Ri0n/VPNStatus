@@ -12,11 +12,9 @@
 // Preferences keys
 //
 NSString * const kServicesPrefKey = @"Services";
-NSString * const kServiceIdKey = @"Id";
-NSString * const kServiceAutoConnectKey = @"AutoConnect";
-
-NSString * const kAutoConnectIntervalKey = @"AutoConnectInterval";
-
+NSString * const kIdKey = @"VPN";
+NSString * const kWifiPrefKey = @"Wifis";
+NSString * const kAutoConnectKey = @"AutoConnect";
 
 
 @implementation ACPreferences
@@ -31,31 +29,47 @@ NSString * const kAutoConnectIntervalKey = @"AutoConnectInterval";
 	return SsharedPreferences;
 }
 
--(void) setAutoConnect:(BOOL)autoConnect forId:(NSString *)serviceId{
-    NSMutableDictionary *servicesPref = [[self getServicesPref] mutableCopy];
-    if (servicesPref[serviceId] == nil)
-        servicesPref[serviceId] = [[NSMutableDictionary alloc] init];
-    NSMutableDictionary *servicePref = [servicesPref[serviceId] mutableCopy];
-    servicePref[kServiceAutoConnectKey] = [NSNumber numberWithBool:autoConnect];
-    servicesPref[serviceId] = servicePref;
-    [self setServicesPref:servicesPref];
+- (NSDictionary *)getPrefs{
+    NSDictionary *prefs = [[NSUserDefaults standardUserDefaults]
+                           dictionaryForKey:kServicesPrefKey];
+    if (prefs == nil) prefs = [[NSDictionary alloc] init];
+    return prefs;
 }
 
--(BOOL) getAutoConnect:(NSString *)serviceId {
-    NSDictionary *serivicesPref = [self getServicesPref];
-    NSDictionary *servicePref = serivicesPref[serviceId];
-    if (servicePref == nil) return NO;
-    return [servicePref[kServiceAutoConnectKey] boolValue];
+- (void)setPrefs: (NSDictionary *) pref{
+    [[NSUserDefaults standardUserDefaults] setObject:pref forKey:kServicesPrefKey];
 }
 
--(NSDictionary *) getServicesPref{
-    NSDictionary *servicesPref = [[NSUserDefaults standardUserDefaults] dictionaryForKey:kServicesPrefKey];
-    if(servicesPref == nil) servicesPref = [[NSDictionary alloc] init];
-    return servicesPref;
+- (NSDictionary *)getVPNPrefs: (NSString *)VPNId{
+    return [self getPrefs][VPNId];
 }
 
--(void) setServicesPref:(NSDictionary *) servicesPref{
-    [[NSUserDefaults standardUserDefaults] setObject:servicesPref forKey:kServicesPrefKey];
+- (BOOL)getVPNAutoConnect:(NSString *)VPNId{
+    NSDictionary *VPNPref = [self getVPNPrefs:VPNId];
+    if (VPNPref == nil) return NO;
+    return [VPNPref[kAutoConnectKey] boolValue];
+} 
+
+- (BOOL)getWifiAutoConnect:(NSString *)VPNId forWifi:(NSString *)wifiId{
+    NSDictionary *VPNPref = [self getVPNPrefs:VPNId];
+    if (VPNPref == nil) return NO;
+    return VPNPref[wifiId] != nil;
+}
+
+- (void)setVPNAutoConnect:(BOOL)autoConnect forVPN:(NSString *)VPNId{
+    NSMutableDictionary *VPNPref = [[self getVPNPrefs:VPNId] mutableCopy];
+    NSMutableDictionary *prefs = [[self getPrefs] mutableCopy];
+    VPNPref[kAutoConnectKey] = [NSNumber numberWithBool:autoConnect];
+    prefs[VPNId] = VPNPref;
+    [self setPrefs:prefs];
+}
+
+- (void)setWifiAutoConnect:(BOOL)autoConnect forVPN:(NSString *)VPNId forWifi:(NSString *)wifiId{
+    NSMutableDictionary *VPNPref = [[self getVPNPrefs:VPNId] mutableCopy];
+    NSMutableDictionary *prefs = [[self getPrefs] mutableCopy];
+    VPNPref[wifiId] = autoConnect ? [NSNumber numberWithBool:autoConnect] : nil;
+    prefs[VPNId] = VPNPref;
+    [self setPrefs:prefs];
 }
 
 @end

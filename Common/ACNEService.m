@@ -7,8 +7,6 @@
 //
 
 #import "ACNEService.h"
-#import "ACNEServicesManager.h"
-#import "ACPreferences.h"
 
 @implementation ACNEService
 
@@ -18,8 +16,6 @@
         _configuration = config;
 		_gotInitialSessionStatus = NO;
         _start = NO;
-        _connectTried = 0;
-        _lastConnectTime = nil;
 		
         // Get the configuration identifier to initialize the ne_session_t
         NSUUID *uuid = [config identifier];
@@ -32,7 +28,7 @@
 		// Setup the callbacks
         [self setupEventCallback];
         [self refreshSession];
-        if ([self shouldAutoConnect]) [self connect];
+        if ([self shouldAutoStartConnect]) [self connect];
     }
     
     return self;
@@ -46,62 +42,72 @@
 	ne_session_release(_session);
 }
 
--(NSString *)name {
+- (NSString *)name {
 	return _configuration.name;
 }
 
--(NSString *)serverAddress {
+- (NSString *)serverAddress {
 	return _configuration.VPN.protocol.serverAddress;
 }
 
--(NSString *)uid {
+- (NSString *)uid {
     return [_configuration.identifier UUIDString];
 }
 
--(BOOL)getAutoConnect {
-    return [[ACPreferences sharedPreferences] getAutoConnect:[self uid]];
+- (BOOL)getVPNAutoConnect {
+    return [[ACPreferences sharedPreferences] 
+        getVPNAutoConnect:[self uid]];
 }
 
--(void)setAutoConnect:(BOOL) autoConnect {
-    [[ACPreferences sharedPreferences] setAutoConnect:autoConnect forId:[self uid]];
+- (void)setVPNAutoConnect:(BOOL) autoConnect {
+    [[ACPreferences sharedPreferences] 
+        setVPNAutoConnect:autoConnect forVPN:[self uid]];
 }
 
--(NSString *)protocol {
+- (BOOL)getWifiAutoConnect{
+    return [self getWifiAutoConnect:[[ACCWManager sharedACCWManager] wlan].bssid];
+}
+
+- (void)setWifiAutoConnect:(BOOL)autoConnect{
+    return [self setWifiAutoConnect:[[ACCWManager sharedACCWManager] wlan].bssid to:autoConnect];
+}
+
+- (BOOL)getWifiAutoConnect:(NSString *) bssid {
+    return [[ACPreferences sharedPreferences] 
+        getWifiAutoConnect:[self uid] forWifi:bssid];
+}
+- (void)setWifiAutoConnect:(NSString *) bssid to:(BOOL) autoConnect {
+    [[ACPreferences sharedPreferences] 
+        setWifiAutoConnect:autoConnect forVPN:[self uid] forWifi:bssid];
+}
+
+- (NSString *)protocol {
 	NEVPNProtocol *protocol = _configuration.VPN.protocol;
-	if([protocol isKindOfClass:[NEVPNProtocolIKEv2 class]]) {
-		return @"IKEv2";
-	} else if([protocol isKindOfClass:[NEVPNProtocolIPSec class]]) {
-		return @"IPSec";
-	}
-	
+	if([protocol isKindOfClass:[NEVPNProtocolIKEv2 class]]) return @"IKEv2";
+	if([protocol isKindOfClass:[NEVPNProtocolIPSec class]]) return @"IPSec";
 	// Fallback to catch future protocols?
 	NSString *className = [protocol className];
-	if([className hasPrefix:@"NEVPNProtocol"]) {
-		return [className substringFromIndex:[@"NEVPNProtocol" length]];
-	}
-	
-	
+	if([className hasPrefix:@"NEVPNProtocol"]) 
+        return [className substringFromIndex:[@"NEVPNProtocol" length]];
 	return @"Unknown";
 }
 
--(SCNetworkConnectionStatus)state {
-	if (self.gotInitialSessionStatus) {
-		return SCNetworkConnectionGetStatusFromNEStatus(self.sessionStatus);
-	} else {
-		return kSCNetworkConnectionInvalid;
-	}
+- (SCNetworkConnectionStatus)state {
+	if (self.gotInitialSessionStatus) 
+        return SCNetworkConnectionGetStatusFromNEStatus(self.sessionStatus);
+	return kSCNetworkConnectionInvalid;
 }
 
--(void)setupEventCallback {
+- (void)setupEventCallback {
 	ne_session_set_event_handler(_session, [[ACNEServicesManager sharedNEServicesManager] neServiceQueue], ^(xpc_object_t result) { [self refreshSession]; });
 }
 
--(void)refreshSession {
+- (void)refreshSession {
 	ne_session_get_status(_session, [[ACNEServicesManager sharedNEServicesManager] neServiceQueue], ^(ne_session_status_t status) {
 		dispatch_async(dispatch_get_main_queue(), ^{
 			self.sessionStatus = status;
 			self.gotInitialSessionStatus = YES;
-            if ([self shouldAutoConnect]) [self connect];
+            if ([self shouldAutoReconnect]) [self connect];
             
 			// Post a notification to refresh the UI
 			[[NSNotificationCenter defaultCenter] postNotificationName:kSessionStateChangedNotification object:nil];
@@ -109,29 +115,41 @@
 	});
 }
 
--(BOOL) shouldAutoConnect{
-    return [self state] == kSCNetworkConnectionDisconnected
-    && [self getAutoConnect]
-    && _start;
+- (BOOL) shouldAutoReconnect{
+    return [self state] == kSCNetworkConnectionDisconnected // disconnected
+    && [[ACCWManager sharedACCWManager] networkConnected] // network connected
+    && [self getVPNAutoConnect] // reconnect enabled
+    && _start; // commanded to start
 }
 
--(void) connect {
-    NSDate *now = [NSDate date];
-    if (_lastConnectTime == nil ||
-        [now compare: [_lastConnectTime dateByAddingTimeInterval:1]]
-        == NSOrderedDescending) _connectTried = 0;
-    _connectTried++;
-    _lastConnectTime = now;
-    if (_connectTried > 3 && [self getAutoConnect]){
-        //connection failed consecutively
-        _start = NO;
-        [[NSNotificationCenter defaultCenter] postNotificationName:kSessionStateChangedNotification object:nil];
-        return;
+- (BOOL) shouldAutoStartConnect{
+    return [self state] == kSCNetworkConnectionDisconnected // disonnected
+    && [[ACCWManager sharedACCWManager] networkConnected] // networkd connected
+    && [self getWifiAutoConnect]; // connect on wifi enabled
+}
+
+- (void) executeConnect: (int) count {
+    NSLog(@"Connecting");
+    _start = YES;
+    if (![[ACCWManager sharedACCWManager] networkReachable]) {
+        if (count > 0){
+            [NSThread sleepForTimeInterval: 1]; // retry after 1'
+            [self executeConnect:count - 1];
+            return;
+        }
+        _start = NO; // get out of the loop, connect anyway but disable reconnect
     }
-	ne_session_start(_session);
+    ne_session_start(_session);
 }
 
--(void) disconnect {
+- (void) connect {
+    dispatch_async([[ACNEServicesManager sharedNEServicesManager] neServiceQueue],
+                   ^{ [self executeConnect: 5]; }
+                   );
+}
+
+- (void) disconnect {
+    _start = NO;
 	ne_session_stop(_session);
 }
 
