@@ -25,6 +25,8 @@
 @property (assign) BOOL gotInitialSessionStatus;
 @property (assign) BOOL start; // true if the user want it to start
 @property (assign) ne_session_status_t sessionStatus;
+@property (retain) NSDate *lastConnectTime;
+@property (assign) int connectTried;
 
 // init
 - (instancetype) initWithConfig:(NEConfiguration *)inConfiguration;

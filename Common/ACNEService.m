@@ -128,9 +128,21 @@
     && [self getWifiAutoConnect]; // connect on wifi enabled
 }
 
+// enfored max connect try count within 1 second to be less than 5
+- (BOOL) connectTriedCheck {
+    NSDate *now = [NSDate date];
+    if (_lastConnectTime == nil ||
+        [now compare: [_lastConnectTime dateByAddingTimeInterval:1]]
+        == NSOrderedDescending) _connectTried = 0;
+    _connectTried++;
+    _lastConnectTime = now;
+    return _connectTried < 5;
+}
+
 - (void) executeConnect: (int) count {
     NSLog(@"Connecting");
     _start = YES;
+    if (![self connectTriedCheck]) return; 
     if (![[ACCWManager sharedACCWManager] networkReachable]) {
         if (count > 0){
             [NSThread sleepForTimeInterval: 1]; // retry after 1'
