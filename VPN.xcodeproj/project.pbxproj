@@ -21,6 +21,8 @@
 		02799F8020F0081F00675162 /* ACNEService.m in Sources */ = {isa = PBXBuildFile; fileRef = 02799F7C20F0081F00675162 /* ACNEService.m */; };
 		02799F8220F0081F00675162 /* ACNEServicesManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 02799F7E20F0081F00675162 /* ACNEServicesManager.m */; };
 		DA994F4322F331C2006D688F /* ACCWManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DA994F4122F32FEC006D688F /* ACCWManager.m */; };
+		DAE04919234CD0C000A40E23 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DAE04918234CD0C000A40E23 /* Foundation.framework */; };
+		DAE0491B234CD0E600A40E23 /* CoreWLAN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DAE0491A234CD0E600A40E23 /* CoreWLAN.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -55,6 +57,8 @@
 		02799F7E20F0081F00675162 /* ACNEServicesManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACNEServicesManager.m; sourceTree = "<group>"; };
 		DA994F4022F32FD2006D688F /* ACCWManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ACCWManager.h; sourceTree = "<group>"; };
 		DA994F4122F32FEC006D688F /* ACCWManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ACCWManager.m; sourceTree = "<group>"; };
+		DAE04918234CD0C000A40E23 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		DAE0491A234CD0E600A40E23 /* CoreWLAN.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreWLAN.framework; path = System/Library/Frameworks/CoreWLAN.framework; sourceTree = SDKROOT; };
 		FA53907E20EF5FD600BA9AF7 /* NetworkMenusCommon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkMenusCommon.framework; path = ../../../../System/Library/PrivateFrameworks/NetworkMenusCommon.framework; sourceTree = "<group>"; };
 		FA53908120EF603700BA9AF7 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		FA53908320EF603B00BA9AF7 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
@@ -73,6 +77,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DAE0491B234CD0E600A40E23 /* CoreWLAN.framework in Frameworks */,
+				DAE04919234CD0C000A40E23 /* Foundation.framework in Frameworks */,
 				02619DFA20F7E25C00099652 /* AppKit.framework in Frameworks */,
 				02619DF920F7E25700099652 /* SystemConfiguration.framework in Frameworks */,
 				02619DF820F7E24C00099652 /* NetworkExtension.framework in Frameworks */,
@@ -143,6 +149,8 @@
 		FA53907D20EF5FD500BA9AF7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DAE0491A234CD0E600A40E23 /* CoreWLAN.framework */,
+				DAE04918234CD0C000A40E23 /* Foundation.framework */,
 				FA89042820EF8059008AA0BC /* NetworkExtension.framework */,
 				FA53908320EF603B00BA9AF7 /* SystemConfiguration.framework */,
 				FA53908120EF603700BA9AF7 /* AppKit.framework */,
@@ -302,14 +310,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = C5GY24RUFN;
 				INFOPLIST_FILE = VPNStatus/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = org.timac.VPNStatus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -321,6 +331,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = "";
@@ -329,6 +340,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_BUNDLE_IDENTIFIER = org.timac.VPNStatus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -343,7 +355,7 @@
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -386,7 +398,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -401,7 +413,7 @@
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -438,7 +450,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 			};

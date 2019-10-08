@@ -65,11 +65,11 @@
 }
 
 - (BOOL)getWifiAutoConnect{
-    return [self getWifiAutoConnect:[[ACCWManager sharedACCWManager] wlan].bssid];
+    return [self getWifiAutoConnect:[[ACCWManager sharedACCWManager] wlan].ssid];
 }
 
 - (void)setWifiAutoConnect:(BOOL)autoConnect{
-    return [self setWifiAutoConnect:[[ACCWManager sharedACCWManager] wlan].bssid to:autoConnect];
+    return [self setWifiAutoConnect:[[ACCWManager sharedACCWManager] wlan].ssid to:autoConnect];
 }
 
 - (BOOL)getWifiAutoConnect:(NSString *) bssid {
@@ -155,8 +155,12 @@
 }
 
 - (void) connect {
+    [self connect: 5];
+}
+
+- (void) connect: (int) count {
     dispatch_async([[ACNEServicesManager sharedNEServicesManager] neServiceQueue],
-                   ^{ [self executeConnect: 5]; }
+                   ^{ [self executeConnect: count]; }
                    );
 }
 

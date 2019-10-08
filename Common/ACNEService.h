@@ -52,6 +52,7 @@
 
 // Connect and disconnect
 -(void) connect;
+-(void) connect: (int) count;
 -(void) disconnect;
 
 @end

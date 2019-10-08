@@ -69,7 +69,7 @@
     for (ACNEService *service in self.services){
         if ([service shouldAutoStartConnect]){
             service.start = YES;
-            [service connect];
+            [service connect: 10];
         }
     }
 }

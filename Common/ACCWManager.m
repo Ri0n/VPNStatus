@@ -40,7 +40,7 @@
 }
 
 - (BOOL)networkConnected{
-    return [self wlan].bssid != nil;
+    return [self wlan].ssid != nil;
 }
 
 - (BOOL)networkReachable{
