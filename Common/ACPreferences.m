@@ -41,18 +41,18 @@ NSString * const kAutoConnectKey = @"AutoConnect";
 }
 
 - (NSDictionary *)getVPNPrefs: (NSString *)VPNId{
-    return [self getPrefs][VPNId];
+    NSDictionary *prefs = [self getPrefs][VPNId];
+    if (prefs == nil) prefs = [[NSDictionary alloc] init];
+    return prefs;
 }
 
 - (BOOL)getVPNAutoConnect:(NSString *)VPNId{
     NSDictionary *VPNPref = [self getVPNPrefs:VPNId];
-    if (VPNPref == nil) return NO;
     return [VPNPref[kAutoConnectKey] boolValue];
 } 
 
 - (BOOL)getWifiAutoConnect:(NSString *)VPNId forWifi:(NSString *)wifiId{
     NSDictionary *VPNPref = [self getVPNPrefs:VPNId];
-    if (VPNPref == nil) return NO;
     return VPNPref[wifiId] != nil;
 }
 

@@ -202,7 +202,7 @@
 		FA53906020EF5F7F00BA9AF7 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1000;
+				LastUpgradeCheck = 1120;
 				ORGANIZATIONNAME = Timac;
 				TargetAttributes = {
 					0204472420F001A400B31904 = {
@@ -290,6 +290,7 @@
 		0204472920F001A500B31904 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -300,6 +301,7 @@
 		0204472A20F001A500B31904 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -314,6 +316,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = C5GY24RUFN;
+				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = VPNStatus/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
