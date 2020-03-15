@@ -109,6 +109,25 @@
 			self.gotInitialSessionStatus = YES;
             if ([self shouldAutoReconnect]) [self connect];
             
+            switch([self state]) {
+                case kSCNetworkConnectionDisconnected:
+                    NSLog(@"VPN Disconnected");
+                    break;
+                case kSCNetworkConnectionConnected:
+                    NSLog(@"VPN Connected");
+                    break;
+                case kSCNetworkConnectionConnecting:
+                    NSLog(@"VPN Connecting");
+                    break;
+                case kSCNetworkConnectionDisconnecting:
+                    NSLog(@"VPN Disconnecting");
+                    break;
+                case kSCNetworkConnectionInvalid:
+                default:
+                    NSLog(@"VPN invalid");
+                    break;
+            }
+            
 			// Post a notification to refresh the UI
 			[[NSNotificationCenter defaultCenter] postNotificationName:kSessionStateChangedNotification object:nil];
 		});
@@ -140,7 +159,7 @@
 }
 
 - (void) executeConnect: (int) count {
-    NSLog(@"Connecting");
+    NSLog(@"Executing Connect");
     _start = YES;
     if (![self connectTriedCheck]) return; 
     if (![[ACCWManager sharedACCWManager] networkReachable]) {
@@ -165,6 +184,7 @@
 }
 
 - (void) disconnect {
+    NSLog(@"Executing Disconnect");
     _start = NO;
 	ne_session_stop(_session);
 }
