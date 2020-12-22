@@ -158,7 +158,7 @@ int main(int argc, const char * argv[])
 				NSLog(@"Failed to load the configurations - %@", error);
 			}
 			
-			neServices = [[ACNEServicesManager sharedNEServicesManager] neServices];
+			neServices = [[ACNEServicesManager sharedNEServicesManager] services];
 			if([neServices count] <= 0)
 			{
 				NSLog(@"Could not find any VPN");
